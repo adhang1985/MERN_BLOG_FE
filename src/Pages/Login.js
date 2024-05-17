@@ -4,6 +4,8 @@ import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { signin } from '../services/userServices';
 import { authActions } from '../Redux/store';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Login = () => {
     const navigate = useNavigate();
@@ -21,11 +23,19 @@ const Login = () => {
 
     const handleSubmit = async(e) => {
         e.preventDefault();
+        if(!input.email || !input.password){
+            return toast.error("Please fill the credentials!");
+        }
         try {
             const response = await signin(input);
             if(response.success){
                 dispatch(authActions.login());
-            localStorage.setItem("userId",response.info._id);
+                localStorage.setItem("userId",response.info._id);
+                toast.success(response.message);
+                navigate('/');
+            }
+            else{
+                toast.error(response.message);
             }
             
         } catch (error) {
@@ -35,6 +45,7 @@ const Login = () => {
 
   return (
    <>
+   <ToastContainer />
         <form>
             <Box maxWidth={450}
           display="flex"
