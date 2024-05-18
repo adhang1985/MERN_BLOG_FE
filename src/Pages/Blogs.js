@@ -13,6 +13,8 @@ const Item = styled(Paper)(() => ({
 const Blogs = () => {
 
   const [data,setData] = useState([]);
+  const [searchVal,setSearchVal] = useState('');
+  const [filteredResults, setFilteredResults] = useState([]);
 
   const getBlogsData = async() => {
     try {
@@ -24,6 +26,20 @@ const Blogs = () => {
     }
   }
 
+
+  const handleSearch = (e) => {
+    setSearchVal(e.target.value);
+    if(searchVal !== ""){
+      const filteredData = data.filter((item) => {
+        return Object.values(item).join('').toLowerCase().includes(searchVal.toLowerCase());
+      })
+      setFilteredResults(filteredData);
+    }
+    else{
+      setFilteredResults(data);
+    }
+  }
+
   useEffect(() => {
       getBlogsData();
   },[])
@@ -31,16 +47,30 @@ const Blogs = () => {
   return (
     <Container>
       <h2>List of blogs</h2>
-      <Box sx={{ flexGrow: 1 }}>
+      <input type='text' name='search' placeholder='Search here' value={searchVal} onChange={handleSearch}/>
+      <Box sx={{ flexGrow: 1 }} style={{ marginTop: 20 }}>
       <Grid container spacing={2} >
         {
-          data && data.map((blog) => {
-            return <>
-              <Grid item xs={12} sm={6} lg={4}>
-                <Item><BlogCard id={blog._id} title={blog.title} description={blog.description} image={blog.image} isUser={false}/></Item>
-              </Grid>
-            </>
-          })
+          searchVal.length > 1 ? 
+          (
+            filteredResults.map((blog) => {
+              return <>
+                <Grid item xs={12} sm={6} lg={4}>
+                  <Item><BlogCard id={blog._id} title={blog.title} description={blog.description} image={blog.image} isUser={false}/></Item>
+                </Grid>
+              </>
+            })
+          )
+          :
+          (
+            data.map((blog) => {
+              return <>
+                <Grid item xs={12} sm={6} lg={4}>
+                  <Item><BlogCard id={blog._id} title={blog.title} description={blog.description} image={blog.image} isUser={false}/></Item>
+                </Grid>
+              </>
+            })
+          )
         }
         
       </Grid>
